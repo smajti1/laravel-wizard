@@ -1,87 +1,65 @@
 <?php
 
 use Smajti1\Laravel\Exceptions\StepNotFoundException;
+use Smajti1\Laravel\Step;
 use Smajti1\Laravel\Wizard;
 
-class WizardTest extends PHPUnit_Framework_TestCase
+class WizardTest extends PHPUnit\Framework\TestCase
 {
     protected $sessionKeyName;
     protected $wizardFirstStepKey;
     protected $steps;
     protected $wizard;
+    protected $firstTestStepClass;
+    protected $secondTestStepClass;
 
-    public function setUp()
+    public function __construct()
     {
-        parent::setUp();
+        parent::__construct();
+        $this->firstTestStepClass = $this->createMock(Step::class);
+        $this->firstTestStepClass::$label = 'First step label';
+        $this->firstTestStepClass::$slug = 'first-step';
+        $this->firstTestStepClass::$view = '';
+
+        $this->secondTestStepClass = $this->createMock(Step::class);
+        $this->secondTestStepClass::$label = 'Second step label';
+        $this->secondTestStepClass::$slug = 'second-step';
+        $this->secondTestStepClass::$view = '';
 
         $this->wizardFirstStepKey = 'first_step_key';
         $this->steps = [
-            $this->wizardFirstStepKey => FirstTestStep::class,
-            SecondTestStep::class,
+            $this->wizardFirstStepKey => get_class($this->firstTestStepClass),
+            get_class($this->secondTestStepClass),
         ];
-
-        $this->wizard = new Wizard($this->steps, $this->sessionKeyName = 'test');
+        $this->sessionKeyName = 'test';
+        $this->wizard = $this->getMockBuilder(Wizard::class)->setConstructorArgs([$this->steps, $this->sessionKeyName])->setMethods(null)->getMock();
     }
 
-    /** @test */
-    public function wizard_test_basic_functions()
+    public function testWizardTestBasicFunctions()
     {
         $this->assertTrue($this->wizard->limit() == count($this->steps));
         $this->assertTrue($this->wizard->hasNext());
         $this->assertFalse($this->wizard->hasPrev());
         $this->assertTrue(count($this->steps) == count($this->wizard->all()));
-
         $this->assertTrue($this->wizard->first()->key == $this->wizardFirstStepKey);
-        $this->assertTrue($this->wizard->nextSlug() == SecondTestStep::$slug);
-
+        $this->assertTrue($this->wizard->nextSlug() == $this->secondTestStepClass::$slug);
     }
 
-    /** @test */
-    public function wizard_test_steps()
+    public function testWizardTestSteps()
     {
         $nextStep = $this->wizard->nextStep();
-        $this->assertTrue($nextStep::$slug == SecondTestStep::$slug);
+        $this->assertTrue($nextStep::$slug == $this->secondTestStepClass::$slug);
 
         $goBackToPrevStep = $this->wizard->prevStep();
-        $this->assertTrue($goBackToPrevStep::$slug == FirstTestStep::$slug);
+        $this->assertTrue($goBackToPrevStep::$slug == $this->firstTestStepClass::$slug);
 
-        $stepBySlug = $this->wizard->getBySlug(SecondTestStep::$slug);
-        $this->assertTrue($stepBySlug::$slug == SecondTestStep::$slug);
+        $stepBySlug = $this->wizard->getBySlug($this->secondTestStepClass::$slug);
+        $this->assertTrue($stepBySlug::$slug == $this->secondTestStepClass::$slug);
+    }
 
-
-        $this->setExpectedException(StepNotFoundException::class);
+    public function testWizardGetNotExistingStep()
+    {
+        $this->expectException(StepNotFoundException::class);
         $this->wizard->getBySlug('wrong_slug');
-    }
-}
-
-class FirstTestStep extends \Smajti1\Laravel\Step
-{
-
-    public static $label = 'First step label';
-    public static $slug = 'first-step';
-    public static $view = '';
-
-    public function process(\Illuminate\Http\Request $request)
-    {
-    }
-
-    public function rules(\Illuminate\Http\Request $request = null)
-    {
-    }
-}
-
-class SecondTestStep extends \Smajti1\Laravel\Step
-{
-
-    public static $label = 'Second step label';
-    public static $slug = 'second-step';
-    public static $view = '';
-
-    public function process(\Illuminate\Http\Request $request)
-    {
-    }
-
-    public function rules(\Illuminate\Http\Request $request = null)
-    {
     }
 }

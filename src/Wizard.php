@@ -13,63 +13,57 @@ class Wizard
     protected $sessionKeyName = '';
 
     /**
-     * @param array $steps
-     * @param string $sessionKeyName
      * @throws StepNotFoundException
      */
-    public function __construct(array $steps, $sessionKeyName = '')
+    public function __construct(array $steps, string $sessionKeyName = '')
     {
-        if (empty($steps))
+        if (empty($steps)) {
             throw new StepNotFoundException();
+        }
 
         $this->currentIndex = $index = 0;
-        $number = 1;
+        $natural_number = 1;
         foreach ($steps as $key => $step) {
-            $newStep = new $step($number, $key, $index, $this);
+            $newStep = new $step($natural_number, $key, $index, $this);
             $this->steps[$index] = $newStep;
             $index++;
-            $number++;
+            $natural_number++;
         }
 
         $this->sessionKeyName = self::SESSION_NAME . '.' . $sessionKeyName;
+        if (function_exists('view')) {
+            view()->share(['wizard' => $this]);
+        }
     }
 
     /**
-     * @return mixed|null
+     * @return Step|null
      */
     public function prevStep()
     {
         if ($this->hasPrev()) {
             return $this->get($this->currentIndex - 1);
         }
-
         return null;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasPrev()
+    public function hasPrev(): bool
     {
         return $this->currentIndex > 0 && isset($this->steps[$this->currentIndex - 1]);
     }
 
     /**
-     * @param $index
-     * @param bool $moveCurrentIndex
      * @return Step
      * @throws StepNotFoundException
      */
-    protected function get($index, $moveCurrentIndex = true)
+    protected function get(int $index, bool $moveCurrentIndex = true): Step
     {
         if (!isset($this->steps[$index])) {
             throw new StepNotFoundException();
         }
-
         if ($moveCurrentIndex) {
             $this->currentIndex = $index;
         }
-
         return $this->steps[$index];
     }
 
@@ -80,10 +74,8 @@ class Wizard
     {
         if ($this->hasPrev()) {
             $prevSlug = $this->get($this->currentIndex - 1, false);
-
             return $prevSlug::$slug;
         }
-
         return null;
     }
 
@@ -93,25 +85,17 @@ class Wizard
     public function nextStep()
     {
         if ($this->hasNext()) {
-
             return $this->get($this->currentIndex + 1);
         }
-
         return null;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasNext()
+    public function hasNext(): bool
     {
         return $this->currentIndex < $this->limit() && isset($this->steps[$this->currentIndex + 1]);
     }
 
-    /**
-     * @return int
-     */
-    public function limit()
+    public function limit(): int
     {
         return count($this->steps);
     }
@@ -123,122 +107,95 @@ class Wizard
     {
         if ($this->hasNext()) {
             $nextStep = $this->get($this->currentIndex + 1, false);
-
             return $nextStep::$slug;
         }
-
         return null;
     }
 
     /**
-     * @param string $slug
-     * @return mixed
      * @throws StepNotFoundException
      */
-    public function getBySlug($slug = '')
+    public function getBySlug(string $slug = ''): Step
     {
         $index = 0;
         foreach ($this->steps as $key => $step) {
             if ($step::$slug == $slug) {
                 $this->currentIndex = $index;
-
                 return $step;
             }
             $index++;
         }
-
         throw new StepNotFoundException();
     }
 
-    /**
-     * @return Step
-     */
-    public function first()
+    public function first(): Step
     {
         return $this->steps[0];
     }
 
-    /**
-     * @param int $moveSteps
-     * @return Step
-     */
-    public function firstOrLastProcessed($moveSteps = 0)
+    public function firstOrLastProcessed(int $moveSteps = 0): Step
     {
-        $lastProcessed = $this->lastProcessed() ?: 0;
+        $lastProcessed = $this->lastProcessedIndex() ?: 0;
         $lastProcessed += $moveSteps;
         $this->currentIndex = $lastProcessed;
-
         return $this->steps[$lastProcessed];
+    }
+
+    /**
+     * @deprecated
+     * @return bool|null
+     */
+    public function lastProcessed()
+    {
+        return $this->lastProcessedIndex();
     }
 
     /**
      * @return bool|null
      */
-    public function lastProcessed()
+    public function lastProcessedIndex()
     {
         $data = $this->data();
         if ($data) {
             $lastProcessed = isset($data['lastProcessed']) ? $data['lastProcessed'] : false;
-
             return $lastProcessed;
         }
-
         return null;
     }
 
-    /**
-     * @param null $data
-     * @return void|array
-     */
-    public function data($data = null)
+    public function data($data = null): array
     {
+        $default = [];
+        if (!function_exists('session')) {
+            return $default;
+        }
         if (is_array($data)) {
             $data['lastProcessed'] = $this->currentIndex;
-
             session([$this->sessionKeyName => $data]);
         }
-
-        return session($this->sessionKeyName, $default = []);
+        return session($this->sessionKeyName, $default);
     }
 
-    /**
-     * @param $key
-     * @return bool
-     */
-    public function dataHas($key)
+    public function dataHas(string $key): bool
     {
         $data = $this->data();
-
         return isset($data[$key]);
     }
 
-    /**
-     * @param $key
-     * @return mixed
-     */
-    public function dataGet($key)
+    public function dataGet(string $key)
     {
         $data = $this->data();
-
         return $data[$key];
     }
 
-    /**
-     * @param $step
-     * @param $key
-     * @return mixed
-     */
-    public function dataStep($step, $key)
+    public function dataStep(Step $step, string $key): array
     {
         $data = $this->data();
-
-        return $data[$step::$slug][$key];
+        $stepData = $data[$step::$slug][$key] ?? [];
+        return $stepData;
     }
 
-    /**
-     * @return array
-     */
-    public function all()
+    public function all(): array
     {
         return $this->steps;
     }

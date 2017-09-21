@@ -4,8 +4,8 @@ simple laravel step-by-step wizard
 
 ## Required
 
-    php ^5.5.9
-    laravel ^5.2
+    php ^7.0
+    laravel ^5.5
 
 ## Install
 
@@ -50,12 +50,13 @@ simple laravel step-by-step wizard
     
         public function process(\Illuminate\Http\Request $request)
         {
+            // for example, create user
             ...
-            // create user or save progress to session
+            // next if you want save one step progress to session use
             $this->saveProgress($request);
         }
     
-        public function rules(\Illuminate\Http\Request $request = null)
+        public function rules(\Illuminate\Http\Request $request = null): array
         {
             return [
                 'username' => 'required|min:4|max:255',
@@ -78,8 +79,6 @@ simple laravel step-by-step wizard
     public function __construct()
     {
         $this->wizard = new Wizard($this->steps, $sessionKeyName = 'user');
-
-        view()->share(['wizard' => $this->wizard]);
     }
 
     public function wizard($step = null)
@@ -113,6 +112,7 @@ simple laravel step-by-step wizard
     ```
 
 4. add base view
+$wizard variable is now automatic sheared with view
     ```php
     <ol>
         @foreach($wizard->all() as $key => $_step)

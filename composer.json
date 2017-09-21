@@ -10,18 +10,16 @@
     }
   ],
   "require": {
-    "php": ">=5.5.9",
-    "illuminate/support": "~5.2",
-    "illuminate/session": "~5.2",
-    "illuminate/http": "~5.2"
+    "php": ">=7.0",
+    "illuminate/http": "~5.5"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.0"
+    "phpunit/phpunit": "~6.0"
   },
   "autoload": {
     "psr-4": {
       "Smajti1\\Laravel\\": "src/"
     }
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "stable"
 }

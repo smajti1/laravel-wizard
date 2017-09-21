@@ -15,7 +15,7 @@ abstract class Step
     public $index;
     protected $wizard;
 
-    public function __construct($number, $key, $index, Wizard $wizard)
+    public function __construct(int $number, string $key, int $index, Wizard $wizard)
     {
         $this->number = $number;
         $this->key = $key;
@@ -25,9 +25,12 @@ abstract class Step
 
     abstract public function process(Request $request);
 
-    abstract public function rules(Request $request = null);
+    public function rules(Request $request = null): array
+    {
+        return [];
+    }
 
-    public function saveProgress(Request $request, $additionalData = [])
+    public function saveProgress(Request $request, array $additionalData = [])
     {
         $wizardData = $this->wizard->data();
         $wizardData[$this::$slug] = $request->except('step', '_token');
