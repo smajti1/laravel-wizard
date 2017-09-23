@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.1.1] - 2017-09-23
+### Added
+- `Smajit1\Laravel\Wizard::createStepClass` function has been added
+### Changed
+- rewrite test for `Smajti1\Laravel\Wizrad` class
+- `Smajti1\Laravel\Step::$label`, `Smajti1\Laravel\Step::$slug` and `Smajti1\Laravel\Step::$view` has been deprecated. 
+And will be changed to non-static
+### Fixed
+- Type declaration of `Smajti1\Laravel\Step::$key` has been changed to mixed
+
 ## [1.1.0] - 2017-09-21
 ### Added
 - this CHANGELOG file
@@ -22,5 +32,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - abstract `Smajti1\Laravel\Step` class to keep main information/validation rules about one step
 - `Smajti1\Laravel\Wizard` class to manage steps
 
-[Unreleased]: https://github.com/smajti1/laravel-wizard/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/smajti1/laravel-wizard/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/smajti1/laravel-wizard/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/smajti1/laravel-wizard/compare/v1.0.0...v1.1.0

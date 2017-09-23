@@ -7,15 +7,26 @@ use Illuminate\Http\Request;
 abstract class Step
 {
 
+    /**
+     * @deprecated since 1.1.0 $label will be no more static
+     */
     public static $label;
+
+    /**
+     * @deprecated from 1.1.0 $slug will be no more static
+     */
     public static $slug;
+
+    /**
+     * @deprecated from 1.1.0 $view will be no more static
+     */
     public static $view;
     public $number;
     public $key;
     public $index;
     protected $wizard;
 
-    public function __construct(int $number, string $key, int $index, Wizard $wizard)
+    public function __construct(int $number, $key, int $index, Wizard $wizard)
     {
         $this->number = $number;
         $this->key = $key;

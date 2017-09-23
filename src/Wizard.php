@@ -22,18 +22,24 @@ class Wizard
         }
 
         $this->currentIndex = $index = 0;
-        $natural_number = 1;
-        foreach ($steps as $key => $step) {
-            $newStep = new $step($natural_number, $key, $index, $this);
+        $naturalNumber = 1;
+        foreach ($steps as $key => $stepClassName) {
+            $newStep = $this->createStepClass($stepClassName, $naturalNumber, $key, $index);
             $this->steps[$index] = $newStep;
             $index++;
-            $natural_number++;
+            $naturalNumber++;
         }
 
         $this->sessionKeyName = self::SESSION_NAME . '.' . $sessionKeyName;
         if (function_exists('view')) {
             view()->share(['wizard' => $this]);
         }
+    }
+
+    protected function createStepClass($stepClassName, int $naturalNumber, $key, int $index): Step
+    {
+        $step = new $stepClassName($naturalNumber, $key, $index, $this);
+        return $step;
     }
 
     /**
@@ -151,13 +157,13 @@ class Wizard
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
     public function lastProcessedIndex()
     {
         $data = $this->data();
         if ($data) {
-            $lastProcessed = isset($data['lastProcessed']) ? $data['lastProcessed'] : false;
+            $lastProcessed = isset($data['lastProcessed']) ? $data['lastProcessed'] : null;
             return $lastProcessed;
         }
         return null;
@@ -176,19 +182,19 @@ class Wizard
         return session($this->sessionKeyName, $default);
     }
 
-    public function dataHas(string $key): bool
+    public function dataHas($key): bool
     {
         $data = $this->data();
         return isset($data[$key]);
     }
 
-    public function dataGet(string $key)
+    public function dataGet($key)
     {
         $data = $this->data();
         return $data[$key];
     }
 
-    public function dataStep(Step $step, string $key): array
+    public function dataStep(Step $step, $key): array
     {
         $data = $this->data();
         $stepData = $data[$step::$slug][$key] ?? [];
