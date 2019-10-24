@@ -42,10 +42,7 @@ class Wizard
         return $step;
     }
 
-    /**
-     * @return Step|null
-     */
-    public function prevStep()
+    public function prevStep(): ?Step
     {
         if ($this->hasPrev()) {
             return $this->get($this->currentIndex - 1);
@@ -59,7 +56,6 @@ class Wizard
     }
 
     /**
-     * @return Step
      * @throws StepNotFoundException
      */
     protected function get(int $index, bool $moveCurrentIndex = true): Step
@@ -73,10 +69,7 @@ class Wizard
         return $this->steps[$index];
     }
 
-    /**
-     * @return null|string
-     */
-    public function prevSlug()
+    public function prevSlug(): ?string
     {
         if ($this->hasPrev()) {
             $prevSlug = $this->get($this->currentIndex - 1, false);
@@ -85,10 +78,7 @@ class Wizard
         return null;
     }
 
-    /**
-     * @return Step|null
-     */
-    public function nextStep()
+    public function nextStep(): ?Step
     {
         if ($this->hasNext()) {
             return $this->get($this->currentIndex + 1);
@@ -106,10 +96,7 @@ class Wizard
         return count($this->steps);
     }
 
-    /**
-     * @return null|string
-     */
-    public function nextSlug()
+    public function nextSlug(): ?string
     {
         if ($this->hasNext()) {
             $nextStep = $this->get($this->currentIndex + 1, false);
@@ -149,17 +136,13 @@ class Wizard
 
     /**
      * @deprecated
-     * @return bool|null
      */
-    public function lastProcessed()
+    public function lastProcessed(): ?bool
     {
         return $this->lastProcessedIndex();
     }
 
-    /**
-     * @return int|null
-     */
-    public function lastProcessedIndex()
+    public function lastProcessedIndex(): ?int
     {
         $data = $this->data();
         if ($data) {

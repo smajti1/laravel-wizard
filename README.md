@@ -2,10 +2,10 @@
 
 simple laravel step-by-step wizard
 
-## Required
-
-    php ^7.0
-    laravel ^5.5
+| Version | Laravel Version | Php Version | 
+|---- |----|----|
+| 1.1 | 5.* | ^7.0 |
+| 1.2 | 6.* | ^7.2 |
 
 ## Install
 

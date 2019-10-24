@@ -19,32 +19,17 @@ class WizardTest extends PHPUnit\Framework\TestCase
     public function __construct()
     {
         parent::__construct();
-        $this->firstTestStepClass = $this->getMockBuilder(Step::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'process',
-            ])
-            ->getMock();
+        $this->firstTestStepClass = $this->createPartialMock(Step::class, ['process',]);
         $this->firstTestStepClass::$label = 'First step label';
         $this->firstTestStepClass::$slug = 'first-step';
         $this->firstTestStepClass::$view = '';
 
-        $this->secondTestStepClass = $this->getMockBuilder(Step::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'process',
-            ])
-            ->getMock();
+        $this->secondTestStepClass = $this->createPartialMock(Step::class, ['process',]);
         $this->secondTestStepClass::$label = 'Second step label';
         $this->secondTestStepClass::$slug = 'second-step';
         $this->secondTestStepClass::$view = '';
 
-        $this->thirdTestStepClass = $this->getMockBuilder(Step::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
-                'process',
-            ])
-            ->getMock();
+        $this->thirdTestStepClass = $this->createPartialMock(Step::class, ['process',]);
         $this->secondTestStepClass::$label = 'Third step label';
         $this->secondTestStepClass::$slug = 'third-step';
         $this->secondTestStepClass::$view = '';
@@ -57,10 +42,10 @@ class WizardTest extends PHPUnit\Framework\TestCase
             $this->wizardThirdStepKey => get_class($this->thirdTestStepClass),
         ];
         $this->sessionKeyName = 'test';
-        $this->wizard = $this->getMockBuilder(Wizard::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['createStepClass', 'lastProcessedIndex'])
-            ->getMock();
+        $this->wizard = $this->createPartialMock(Wizard::class, [
+            'createStepClass',
+            'lastProcessedIndex',
+        ]);
 
         $this->wizard_reflection = new \ReflectionClass(Wizard::class);
     }
@@ -168,10 +153,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
 
     public function testLastProcessedIndex()
     {
-        $wizard = $this->getMockBuilder(Wizard::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['data'])
-            ->getMock();
+        $wizard = $this->createPartialMock(Wizard::class, ['data',]);
         $wizard->expects($this->once())
             ->method('data')
             ->willReturn(['lastProcessed' => 1]);
@@ -180,10 +162,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
 
     public function testLastProcessedIndexWithoutData()
     {
-        $wizard = $this->getMockBuilder(Wizard::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['data'])
-            ->getMock();
+        $wizard = $this->createPartialMock(Wizard::class, ['data',]);
         $wizard->expects($this->once())
             ->method('data')
             ->willReturn([]);
