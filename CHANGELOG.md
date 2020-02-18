@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.2.0] - 2020-02-18
+### Added
+- added docker container files
+
 ## [1.1.1] - 2017-09-23
 ### Added
 - `Smajit1\Laravel\Wizard::createStepClass` function has been added
