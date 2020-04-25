@@ -5,7 +5,7 @@ simple laravel step-by-step wizard
 | Version | Laravel Version | Php Version | 
 |---- |----|----|
 | 1.1 | 5.* | ^7.0 |
-| 1.2 | 6.* | ^7.2 |
+| ^1.4 | 6.* &#124;&#124; 7.*  | ^7.2 |
 
 ## Install
 
