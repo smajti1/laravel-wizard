@@ -5,7 +5,7 @@ simple laravel step-by-step wizard
 | Version | Laravel Version | Php Version | 
 |---- |----|----|
 | 1.1 | 5.* | ^7.0 |
-| ^1.4 | 6.* &#124;&#124; 7.*  | ^7.2 |
+| ^1.4 | 6.* &#124;&#124; 7.* &#124;&#124; 8.* | ^7.2 |
 
 ## Install
 
@@ -16,8 +16,10 @@ simple laravel step-by-step wizard
 1. add routes
     
     ```php
-    Route::get('wizard/user/{step?}', 'UserWizardController@wizard')->name('wizard.user');
-    Route::post('wizard/user/{step}', 'UserWizardController@wizardPost')->name('wizard.user.post');
+   use App\Http\Controllers\UserWizardController;
+   
+    Route::get('wizard/user/{step?}', [UserWizardController::class, 'wizard'])->name('wizard.user');
+    Route::post('wizard/user/{step}', [UserWizardController::class, 'wizardPost'])->name('wizard.user.post');
     ```
 
 2. create steps
