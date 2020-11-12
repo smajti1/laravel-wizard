@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.5.0] - 2020-11-13
 ### Added
-- support `laravel` version `^8.0`
+- support `laravel` version `^8.0` and php `^8.0`
 - update README.md see [automatic-controller-namespace-prefixing](https://laravel.com/docs/8.x/upgrade#automatic-controller-namespace-prefixing)
 
 ## [1.4.0] - 2020-04-25
