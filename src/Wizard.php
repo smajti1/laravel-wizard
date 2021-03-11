@@ -189,4 +189,55 @@ class Wizard
         return $this->steps;
     }
 
+    public function replaceStep(int $index, string $new_step_class, string $key): Step
+    {
+        $step = $this->steps[$index];
+        $step->clearData();
+
+        $this->steps[$index] = $this->createStepClass($new_step_class, $index + 1, $key, $index);
+
+        return $this->steps[$index];
+    }
+
+    public function appendStep(string $step_class, string $key): Step
+    {
+        $new_index = count($this->steps);
+        $this->steps[] = $this->createStepClass($step_class, $new_index + 1, $key, $new_index);
+
+        return $this->steps[$new_index];
+    }
+
+    public function insertStep(int $index, string $step_class, string $key): Step
+    {
+        if ($index >= count($this->steps) || count($this->steps) === 0) {
+            return $this->appendStep($step_class, $key);
+        }
+
+        for ($i = count($this->steps); $i > $index; $i--) {
+            $this->steps[$i] = $this->steps[$i - 1];
+        }
+        $this->steps[$index] = $this->createStepClass($step_class, $index + 1, $key, $index);
+
+        return $this->steps[$index];
+    }
+
+    public function destroyStep(int $index): void
+    {
+        $step = $this->get($index);
+        $step->clearData();
+
+        unset($this->steps[$index]);
+        $this->steps = array_values($this->steps);
+    }
+
+    public function clearProgress()
+    {
+        $this->currentIndex = count($this->steps) > 0 ? 0 : -1;
+        $this->clearData();
+    }
+
+    public function clearData()
+    {
+        $this->data([]);
+    }
 }

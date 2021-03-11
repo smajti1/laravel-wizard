@@ -16,7 +16,9 @@ class WizardTest extends PHPUnit\Framework\TestCase
     protected $secondTestStepClass;
     protected $wizard_reflection;
     protected $thirdTestStepClass;
+    protected $fourthTestStepClass;
     protected $wizardThirdStepKey;
+    protected $wizardFourthStepKey;
 
     public function __construct()
     {
@@ -36,8 +38,14 @@ class WizardTest extends PHPUnit\Framework\TestCase
         $this->secondTestStepClass::$slug = 'third-step';
         $this->secondTestStepClass::$view = '';
 
+        $this->fourthTestStepClass = $this->createPartialMock(Step::class, ['process',]);
+        $this->fourthTestStepClass::$label = 'Fourth step label';
+        $this->fourthTestStepClass::$slug = 'fourth-step';
+        $this->fourthTestStepClass::$view = '';
+
         $this->wizardFirstStepKey = 'first_step_key';
         $this->wizardThirdStepKey = 'step_key_third';
+        $this->wizardFourthStepKey = 'fourth_step_key';
         $this->steps = [
             $this->wizardFirstStepKey => get_class($this->firstTestStepClass),
             get_class($this->secondTestStepClass),
@@ -53,20 +61,20 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testConstructor(): void
-	{
+    {
         $this->wizard->expects(self::exactly(3))
             ->method('createStepClass');
         $this->wizard->__construct($this->steps);
     }
 
     public function testConstructorEmptySteps(): void
-	{
+    {
         $this->expectException(StepNotFoundException::class);
         $this->wizard->__construct([]);
     }
 
     public function testCreateStepClass(): void
-	{
+    {
         $testStepClassName = 'TestStepClassName';
         $this->getMockForAbstractClass(Step::class, [], $testStepClassName, false);
 
@@ -79,7 +87,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testPrevStep(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         self::assertNull($this->wizard->prevStep());
         $this->wizard->nextStep();
@@ -87,7 +95,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testHasStep(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         self::assertFalse($this->wizard->hasPrev());
         $this->wizard->nextStep();
@@ -95,7 +103,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testGetNotExistingStep(): void
-	{
+    {
         $this->expectException(StepNotFoundException::class);
 
         $method = $this->wizard_reflection->getMethod('get');
@@ -105,7 +113,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testPrevSlug(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         self::assertNull($this->wizard->prevSlug());
         $this->wizard->nextStep();
@@ -113,7 +121,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testNextStep(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         self::assertInstanceOf(Step::class, $this->wizard->nextStep());
         $this->wizard->nextStep();
@@ -121,7 +129,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testNextSlug(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         self::assertEquals($this->secondTestStepClass::$slug, $this->wizard->nextSlug());
         $this->wizard->nextStep();
@@ -130,20 +138,20 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testGetBySlugNotExistingStep(): void
-	{
+    {
         $this->expectException(StepNotFoundException::class);
         $this->wizard->getBySlug('wrong_slug');
     }
 
     public function testFirst(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         $result = $this->wizard->first();
         self::assertEquals($this->firstTestStepClass::$slug, $result::$slug);
     }
 
     public function testFirstOrLastProcessed(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         $this->wizard->expects(self::once())
             ->method('lastProcessedIndex')
@@ -154,7 +162,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testLastProcessedIndex(): void
-	{
+    {
         $wizard = $this->createPartialMock(Wizard::class, ['data',]);
         $wizard->expects(self::once())
             ->method('data')
@@ -163,7 +171,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testLastProcessedIndexWithoutData(): void
-	{
+    {
         $wizard = $this->createPartialMock(Wizard::class, ['data',]);
         $wizard->expects(self::once())
             ->method('data')
@@ -172,7 +180,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testWizardTestSteps(): void
-	{
+    {
         $this->wizard->__construct($this->steps);
         $nextStep = $this->wizard->nextStep();
         self::assertEquals($nextStep::$slug, $this->secondTestStepClass::$slug);
@@ -184,4 +192,50 @@ class WizardTest extends PHPUnit\Framework\TestCase
         self::assertEquals($stepBySlug::$slug, $this->secondTestStepClass::$slug);
     }
 
+    public function testWizardAppendSteps(): void
+    {
+        $this->wizard = $this->createPartialMock(Wizard::class, []);
+        $this->wizard->__construct($this->steps);
+
+        $result = $this->wizard->appendStep($this->fourthTestStepClass::class, $this->wizardFourthStepKey);
+
+        self::assertEquals(4, count($this->wizard->all()));
+        self::assertEquals($this->fourthTestStepClass::$slug, $result::$slug);
+        self::assertEquals($this->wizardFourthStepKey, $this->wizard->all()[3]->key);
+    }
+
+    public function testWizardInsertSteps(): void
+    {
+        $this->wizard = $this->createPartialMock(Wizard::class, []);
+        $this->wizard->__construct($this->steps);
+
+        $result = $this->wizard->insertStep(1, $this->fourthTestStepClass::class, $this->wizardFourthStepKey);
+
+        self::assertEquals(4, count($this->wizard->all()));
+        self::assertEquals($this->fourthTestStepClass::$slug, $result::$slug);
+        self::assertEquals($this->wizardFourthStepKey, $this->wizard->all()[1]->key);
+    }
+
+    public function testWizardReplaceSteps(): void
+    {
+        $this->wizard = $this->createPartialMock(Wizard::class, []);
+        $this->wizard->__construct($this->steps);
+
+        $result = $this->wizard->replaceStep(1, $this->fourthTestStepClass::class, $this->wizardFourthStepKey);
+
+        self::assertEquals(3, count($this->wizard->all()));
+        self::assertEquals($this->fourthTestStepClass::$slug, $result::$slug);
+        self::assertEquals($this->wizardFourthStepKey, $this->wizard->all()[1]->key);
+    }
+
+    public function testWizardDestroySteps(): void
+    {
+        $this->wizard = $this->createPartialMock(Wizard::class, []);
+        $this->wizard->__construct($this->steps);
+
+        $this->wizard->destroyStep(1);
+
+        self::assertEquals(2, count($this->wizard->all()));
+        self::assertEquals($this->wizardThirdStepKey, $this->wizard->all()[1]->key);
+    }
 }
