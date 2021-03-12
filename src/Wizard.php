@@ -215,7 +215,10 @@ class Wizard
 
         for ($i = count($this->steps); $i > $index; $i--) {
             $this->steps[$i] = $this->steps[$i - 1];
+            $this->steps[$i]->index++;
+            $this->steps[$i]->number++;
         }
+
         $this->steps[$index] = $this->createStepClass($step_class, $index + 1, $key, $index);
 
         return $this->steps[$index];
@@ -225,6 +228,11 @@ class Wizard
     {
         $step = $this->get($index);
         $step->clearData();
+
+        for ($i=$index+1; $i < count($this->steps); $i++) {
+            $this->steps[$i]->index--;
+            $this->steps[$i]->number--;
+        }
 
         unset($this->steps[$index]);
         $this->steps = array_values($this->steps);
