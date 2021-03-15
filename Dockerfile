@@ -1,10 +1,13 @@
-FROM php:8.0-rc-fpm-alpine
+FROM php:7.3-fpm-alpine
 
 RUN apk update && apk add --no-cache \
     bash \
     curl \
     git \
-    shadow
+    shadow \
+   $PHPIZE_DEPS
+
+RUN pecl install xdebug-3.0.3 && docker-php-ext-enable xdebug
 
 RUN usermod -u 1000 www-data
 RUN chown www-data:www-data /var/www/

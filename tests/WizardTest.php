@@ -2,50 +2,39 @@
 
 declare(strict_types=1);
 
+namespace Smajti1\LaravelWizard\Test;
+
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Smajti1\Laravel\Exceptions\StepNotFoundException;
 use Smajti1\Laravel\Step;
 use Smajti1\Laravel\Wizard;
+use Smajti1\LaravelWizard\Test\Step\FirstDumpStep;
+use Smajti1\LaravelWizard\Test\Step\SecondDumpStep;
+use Smajti1\LaravelWizard\Test\Step\ThirdDumpStep;
 
-class WizardTest extends PHPUnit\Framework\TestCase
+class WizardTest extends TestCase
 {
     protected $sessionKeyName;
     protected $wizardFirstStepKey;
     protected $steps;
     protected $wizard;
-    protected $firstTestStepClass;
-    protected $secondTestStepClass;
     protected $wizard_reflection;
-    protected $thirdTestStepClass;
     protected $wizardThirdStepKey;
 
     public function __construct()
     {
         parent::__construct();
-        $this->firstTestStepClass = $this->createPartialMock(Step::class, ['process',]);
-        $this->firstTestStepClass::$label = 'First step label';
-        $this->firstTestStepClass::$slug = 'first-step';
-        $this->firstTestStepClass::$view = '';
-
-        $this->secondTestStepClass = $this->createPartialMock(Step::class, ['process',]);
-        $this->secondTestStepClass::$label = 'Second step label';
-        $this->secondTestStepClass::$slug = 'second-step';
-        $this->secondTestStepClass::$view = '';
-
-        $this->thirdTestStepClass = $this->createPartialMock(Step::class, ['process',]);
-        $this->secondTestStepClass::$label = 'Third step label';
-        $this->secondTestStepClass::$slug = 'third-step';
-        $this->secondTestStepClass::$view = '';
 
         $this->wizardFirstStepKey = 'first_step_key';
         $this->wizardThirdStepKey = 'step_key_third';
         $this->steps = [
-            $this->wizardFirstStepKey => get_class($this->firstTestStepClass),
-            get_class($this->secondTestStepClass),
-            $this->wizardThirdStepKey => get_class($this->thirdTestStepClass),
+            $this->wizardFirstStepKey => FirstDumpStep::class,
+            SecondDumpStep::class,
+            $this->wizardThirdStepKey => ThirdDumpStep::class,
         ];
         $this->sessionKeyName = 'test';
         $this->wizard = $this->createPartialMock(Wizard::class, [
-            'createStepClass',
             'lastProcessedIndex',
         ]);
 
@@ -53,16 +42,28 @@ class WizardTest extends PHPUnit\Framework\TestCase
     }
 
     public function testConstructor(): void
-	{
-        $this->wizard->expects(self::exactly(3))
+    {
+        $wizard = $this->createPartialMock(Wizard::class, [
+            'createStepClass',
+        ]);
+        $wizard->expects(self::exactly(3))
             ->method('createStepClass');
-        $this->wizard->__construct($this->steps);
+        $wizard->__construct($this->steps);
     }
 
     public function testConstructorEmptySteps(): void
 	{
         $this->expectException(StepNotFoundException::class);
         $this->wizard->__construct([]);
+    }
+
+    public function testConstructorStepsInDifferentDirection(): void
+    {
+        $this->wizard->__construct([SecondDumpStep::class, ThirdDumpStep::class, FirstDumpStep::class]);
+        $allSteps = $this->wizard->all();
+        self::assertInstanceOf(SecondDumpStep::class, $allSteps[0]);
+        self::assertInstanceOf(ThirdDumpStep::class, $allSteps[1]);
+        self::assertInstanceOf(FirstDumpStep::class, $allSteps[2]);
     }
 
     public function testCreateStepClass(): void
@@ -109,7 +110,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
         $this->wizard->__construct($this->steps);
         self::assertNull($this->wizard->prevSlug());
         $this->wizard->nextStep();
-        self::assertEquals($this->firstTestStepClass::$slug, $this->wizard->prevSlug());
+        self::assertEquals(FirstDumpStep::$slug, $this->wizard->prevSlug());
     }
 
     public function testNextStep(): void
@@ -123,7 +124,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
     public function testNextSlug(): void
 	{
         $this->wizard->__construct($this->steps);
-        self::assertEquals($this->secondTestStepClass::$slug, $this->wizard->nextSlug());
+        self::assertEquals(SecondDumpStep::$slug, $this->wizard->nextSlug());
         $this->wizard->nextStep();
         $this->wizard->nextStep();
         self::assertNull($this->wizard->nextSlug());
@@ -139,7 +140,7 @@ class WizardTest extends PHPUnit\Framework\TestCase
 	{
         $this->wizard->__construct($this->steps);
         $result = $this->wizard->first();
-        self::assertEquals($this->firstTestStepClass::$slug, $result::$slug);
+        self::assertEquals(FirstDumpStep::$slug, $result::$slug);
     }
 
     public function testFirstOrLastProcessed(): void
@@ -151,6 +152,9 @@ class WizardTest extends PHPUnit\Framework\TestCase
         $allSteps = $this->wizard->all();
         $result = $this->wizard->firstOrLastProcessed();
         self::assertEquals($allSteps[1], $result);
+        self::assertInstanceOf(FirstDumpStep::class, $allSteps[0]);
+        self::assertInstanceOf(SecondDumpStep::class, $allSteps[1]);
+        self::assertInstanceOf(ThirdDumpStep::class, $allSteps[2]);
     }
 
     public function testLastProcessedIndex(): void
@@ -175,13 +179,13 @@ class WizardTest extends PHPUnit\Framework\TestCase
 	{
         $this->wizard->__construct($this->steps);
         $nextStep = $this->wizard->nextStep();
-        self::assertEquals($nextStep::$slug, $this->secondTestStepClass::$slug);
+        self::assertEquals($nextStep::$slug, SecondDumpStep::$slug);
 
         $goBackToPrevStep = $this->wizard->prevStep();
-        self::assertEquals($goBackToPrevStep::$slug, $this->firstTestStepClass::$slug);
+        self::assertEquals($goBackToPrevStep::$slug, FirstDumpStep::$slug);
 
-        $stepBySlug = $this->wizard->getBySlug($this->secondTestStepClass::$slug);
-        self::assertEquals($stepBySlug::$slug, $this->secondTestStepClass::$slug);
+        $stepBySlug = $this->wizard->getBySlug(SecondDumpStep::$slug);
+        self::assertEquals($stepBySlug::$slug, SecondDumpStep::$slug);
     }
 
 }
