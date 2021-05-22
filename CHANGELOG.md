@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - require min `php ^7.3` and `illuminate/http ^7.0`
 - rewrite/refactor tests to be more reusable
-- Add manage steps: `append`, `insert`, `replace`, `destroy`, thanks @jamesRUS52 (#8)
+- Add manage steps: `append`, `insert`, `replace`, `destroy`, thanks [@jamesRUS52](https://github.com/jamesRUS52) ([#8](https://github.com/smajti1/laravel-wizard/pull/8))
 
 ## [1.5.0] - 2020-11-13
 ### Added
