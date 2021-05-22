@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2021-05-22
+### Added
+- require min `php ^7.3` and `illuminate/http ^7.0`
+- rewrite/refactor tests to be more reusable
+- Add manage steps: `append`, `insert`, `replace`, `destroy`, thanks @jamesRUS52 (#8)
+
 ## [1.5.0] - 2020-11-13
 ### Added
 - support `laravel` version `^8.0` and php `^8.0`
@@ -57,3 +63,4 @@ And will be changed to non-static
 [1.3.0]: https://github.com/smajti1/laravel-wizard/compare/v1.2.0...v1.3.0
 [1.4.0]: https://github.com/smajti1/laravel-wizard/compare/v1.3.0...v1.4.0
 [1.5.0]: https://github.com/smajti1/laravel-wizard/compare/v1.4.0...v1.5.0
+[1.6.0]: https://github.com/smajti1/laravel-wizard/compare/v1.5.0...v1.6.0

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Smajti1\LaravelWizard\Test;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Smajti1\Laravel\Exceptions\StepNotFoundException;
 use Smajti1\Laravel\Step;
 use Smajti1\Laravel\Wizard;
 use Smajti1\LaravelWizard\Test\Step\FirstDumpStep;
+use Smajti1\LaravelWizard\Test\Step\FourthDumpStep;
 use Smajti1\LaravelWizard\Test\Step\SecondDumpStep;
 use Smajti1\LaravelWizard\Test\Step\ThirdDumpStep;
 
@@ -188,4 +190,65 @@ class WizardTest extends TestCase
         self::assertEquals($stepBySlug::$slug, SecondDumpStep::$slug);
     }
 
+    public function testWizardAppendSteps(): void
+    {
+        $this->wizard->__construct([SecondDumpStep::class, ThirdDumpStep::class, FirstDumpStep::class]);
+        $result = $this->wizard->appendStep(FourthDumpStep::class, 'fourth-step-key');
+
+        self::assertCount(4, $this->wizard->all());
+        self::assertEquals(FourthDumpStep::$slug, $result::$slug);
+        self::assertEquals('fourth-step-key', $this->wizard->all()[3]->key);
+    }
+
+    public function testWizardInsertSteps(): void
+    {
+        $this->wizard->__construct([SecondDumpStep::class, ThirdDumpStep::class, FirstDumpStep::class]);
+        $result = $this->wizard->insertStep(1, FourthDumpStep::class, 'fourth-step-key');
+
+        self::assertCount(4, $this->wizard->all());
+        self::assertEquals(FourthDumpStep::$slug, $result::$slug);
+        self::assertEquals('fourth-step-key', $this->wizard->all()[1]->key);
+        $allSteps = $this->wizard->all();
+        self::assertInstanceOf(SecondDumpStep::class, $allSteps[0]);
+        self::assertInstanceOf(FourthDumpStep::class, $allSteps[1]);
+        self::assertInstanceOf(ThirdDumpStep::class, $allSteps[2]);
+        self::assertInstanceOf(FirstDumpStep::class, $allSteps[3]);
+    }
+
+    public function testWizardInsertStepsInvalidIndex(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot set index below zero!');
+        $this->wizard->__construct([SecondDumpStep::class, ThirdDumpStep::class, FirstDumpStep::class]);
+        $this->wizard->insertStep(-1234, FourthDumpStep::class, 'fourth-step-key');
+    }
+
+    public function testWizardInsertStepsInsertedIndexExceedActualIndex(): void
+    {
+        $this->wizard->__construct([FirstDumpStep::class, SecondDumpStep::class, ThirdDumpStep::class]);
+        $result = $this->wizard->insertStep(1234567, FourthDumpStep::class, 'fourth-step-key');
+
+        self::assertCount(4, $this->wizard->all());
+        self::assertEquals(FourthDumpStep::$slug, $result::$slug);
+        self::assertEquals('fourth-step-key', $this->wizard->all()[3]->key);
+    }
+
+    public function testWizardReplaceSteps(): void
+    {
+        $this->wizard->__construct([FirstDumpStep::class, SecondDumpStep::class, ThirdDumpStep::class]);
+        $result = $this->wizard->replaceStep(1, FourthDumpStep::class, 'fourth-step-key');
+
+        self::assertCount(3, $this->wizard->all());
+        self::assertEquals(FourthDumpStep::$slug, $result::$slug);
+        self::assertEquals('fourth-step-key', $this->wizard->all()[1]->key);
+    }
+
+    public function testWizardDestroySteps(): void
+    {
+        $this->wizard->__construct([SecondDumpStep::class, ThirdDumpStep::class, 'test-key-1' => FirstDumpStep::class]);
+        $this->wizard->destroyStep(1);
+
+        self::assertCount(2, $this->wizard->all());
+        self::assertEquals('test-key-1', $this->wizard->all()[1]->key);
+    }
 }

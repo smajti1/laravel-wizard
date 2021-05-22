@@ -2,6 +2,7 @@
 
 namespace Smajti1\Laravel;
 
+use InvalidArgumentException;
 use Smajti1\Laravel\Exceptions\StepNotFoundException;
 
 class Wizard
@@ -189,4 +190,68 @@ class Wizard
         return $this->steps;
     }
 
+    public function replaceStep(int $index, string $newStepClass, $key): Step
+    {
+        $step = $this->steps[$index];
+        $step->clearData();
+
+        $this->steps[$index] = $this->createStepClass($newStepClass, $index + 1, $key, $index);
+
+        return $this->steps[$index];
+    }
+
+    public function appendStep(string $stepClass, $key): Step
+    {
+        $newIndex = count($this->steps);
+        $this->steps[] = $this->createStepClass($stepClass, $newIndex + 1, $key, $newIndex);
+
+        return $this->steps[$newIndex];
+    }
+
+    public function insertStep(int $index, string $stepClass, $key): Step
+    {
+        if ($index < 0) {
+            throw new InvalidArgumentException('Cannot set index below zero!');
+        }
+        $stepsCount = count($this->steps);
+        if ($index >= $stepsCount || $stepsCount === 0) {
+            return $this->appendStep($stepClass, $key);
+        }
+
+        for ($i = $stepsCount; $i > $index; $i--) {
+            $this->steps[$i] = $this->steps[$i - 1];
+            $this->steps[$i]->index++;
+            $this->steps[$i]->number++;
+        }
+
+        $this->steps[$index] = $this->createStepClass($stepClass, $index + 1, $key, $index);
+
+        return $this->steps[$index];
+    }
+
+    public function destroyStep(int $index): void
+    {
+        $step = $this->get($index);
+        $step->clearData();
+
+        $stepsCount = count($this->steps);
+        for ($i = $index + 1; $i < $stepsCount; $i++) {
+            $this->steps[$i]->index--;
+            $this->steps[$i]->number--;
+        }
+
+        unset($this->steps[$index]);
+        $this->steps = array_values($this->steps);
+    }
+
+    public function clearProgress(): void
+    {
+        $this->currentIndex = count($this->steps) > 0 ? 0 : -1;
+        $this->clearData();
+    }
+
+    public function clearData(): void
+    {
+        $this->data([]);
+    }
 }

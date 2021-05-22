@@ -50,4 +50,10 @@ abstract class Step
         $this->wizard->data($wizardData);
     }
 
+    public function clearData(): void
+    {
+        $data = $this->wizard->data();
+        unset($data[$this::$slug]);
+        $this->wizard->data($data);
+    }
 }
