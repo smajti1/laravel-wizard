@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2022-02-28
+### Added
+- support `laravel` version `^9.0`
+
 ## [1.6.0] - 2021-05-22
 ### Added
 - require min `php ^7.3` and `illuminate/http ^7.0`
