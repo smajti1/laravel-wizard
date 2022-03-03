@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smajti1\LaravelWizard\Test;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Smajti1\Laravel\Exceptions\StepNotFoundException;
@@ -17,11 +18,17 @@ use Smajti1\LaravelWizard\Test\Step\ThirdDumpStep;
 
 class WizardTest extends TestCase
 {
+	/** @var string */
     protected $sessionKeyName;
+	/** @var string */
     protected $wizardFirstStepKey;
+	/** @var array<int|string, class-string<Step>> */
     protected $steps;
+	/** @var MockObject&Wizard  */
     protected $wizard;
+	/** @var ReflectionClass<Wizard>  */
     protected $wizard_reflection;
+	/** @var string  */
     protected $wizardThirdStepKey;
 
     public function __construct()
@@ -77,6 +84,7 @@ class WizardTest extends TestCase
         $method->setAccessible(true);
 
         $result = $method->invoke($this->wizard, $testStepClassName, 1, 'test_key', 2);
+		/** @phpstan-ignore-next-line */
         self::assertInstanceOf($testStepClassName, $result);
         self::assertInstanceOf(Step::class, $result);
     }
@@ -180,11 +188,13 @@ class WizardTest extends TestCase
     public function testWizardTestSteps(): void
 	{
         $this->wizard->__construct($this->steps);
+		/** @var Step $nextStep */
         $nextStep = $this->wizard->nextStep();
         self::assertEquals($nextStep::$slug, SecondDumpStep::$slug);
 
-        $goBackToPrevStep = $this->wizard->prevStep();
-        self::assertEquals($goBackToPrevStep::$slug, FirstDumpStep::$slug);
+		/** @var Step $goBackToPrevStep */
+		$goBackToPrevStep = $this->wizard->prevStep();
+		self::assertEquals($goBackToPrevStep::$slug, FirstDumpStep::$slug);
 
         $stepBySlug = $this->wizard->getBySlug(SecondDumpStep::$slug);
         self::assertEquals($stepBySlug::$slug, SecondDumpStep::$slug);

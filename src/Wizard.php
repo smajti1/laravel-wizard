@@ -9,11 +9,15 @@ class Wizard
 {
 
     const SESSION_NAME = 'smajti1.wizard';
+	/** @var array<int, Step> */
     protected $steps = [];
+	/** @var int */
     protected $currentIndex = -1;
+	/** @var string */
     protected $sessionKeyName = '';
 
     /**
+	 * @param array<int|string, class-string<Step>>|array{} $steps
      * @throws StepNotFoundException
      */
     public function __construct(array $steps, string $sessionKeyName = '')
@@ -37,10 +41,13 @@ class Wizard
         }
     }
 
+	/**
+	 * @param class-string<Step> $stepClassName
+	 * @param string|int $key
+	 */
     protected function createStepClass($stepClassName, int $naturalNumber, $key, int $index): Step
     {
-        $step = new $stepClassName($naturalNumber, $key, $index, $this);
-        return $step;
+		return new $stepClassName($naturalNumber, $key, $index, $this);
     }
 
     public function prevStep(): ?Step
@@ -140,19 +147,23 @@ class Wizard
      */
     public function lastProcessed(): ?bool
     {
-        return $this->lastProcessedIndex();
+		$last_processed_index = $this->lastProcessedIndex();
+		return $last_processed_index === null ? null : (bool) $last_processed_index;
     }
 
     public function lastProcessedIndex(): ?int
     {
         $data = $this->data();
         if ($data) {
-            $lastProcessed = isset($data['lastProcessed']) ? $data['lastProcessed'] : null;
-            return $lastProcessed;
+			return $data['lastProcessed'] ?? null;
         }
         return null;
     }
 
+	/**
+	 * @param array<mixed>|array{}|null $data
+	 * @return array<string|int, mixed>|array{}
+	 */
     public function data($data = null): array
     {
         $default = [];
@@ -166,30 +177,47 @@ class Wizard
         return session($this->sessionKeyName, $default);
     }
 
+	/**
+	 * @param string|int $key
+	 */
     public function dataHas($key): bool
     {
         $data = $this->data();
         return isset($data[$key]);
     }
 
+	/**
+	 * @param string|int $key
+	 * @return array<mixed>
+	 */
     public function dataGet($key)
     {
         $data = $this->data();
         return $data[$key];
     }
 
+	/**
+	 * @param string|int $key
+	 * @return array<mixed>
+	 */
     public function dataStep(Step $step, $key): array
     {
         $data = $this->data();
-        $stepData = $data[$step::$slug][$key] ?? [];
-        return $stepData;
+		return $data[$step::$slug][$key] ?? [];
     }
 
+	/**
+	 * @return array<int, Step>
+	 */
     public function all(): array
     {
         return $this->steps;
     }
 
+	/**
+	 * @param class-string<Step> $newStepClass
+	 * @param string|int $key
+	 */
     public function replaceStep(int $index, string $newStepClass, $key): Step
     {
         $step = $this->steps[$index];
@@ -200,6 +228,10 @@ class Wizard
         return $this->steps[$index];
     }
 
+	/**
+	 * @param class-string<Step> $stepClass
+	 * @param string|int $key
+	 */
     public function appendStep(string $stepClass, $key): Step
     {
         $newIndex = count($this->steps);
@@ -208,13 +240,17 @@ class Wizard
         return $this->steps[$newIndex];
     }
 
+	/**
+	 * @param string|int $key
+	 * @param class-string<Step> $stepClass
+	 */
     public function insertStep(int $index, string $stepClass, $key): Step
     {
         if ($index < 0) {
             throw new InvalidArgumentException('Cannot set index below zero!');
         }
         $stepsCount = count($this->steps);
-        if ($index >= $stepsCount || $stepsCount === 0) {
+        if ($index >= $stepsCount) {
             return $this->appendStep($stepClass, $key);
         }
 
