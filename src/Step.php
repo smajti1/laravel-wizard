@@ -50,7 +50,7 @@ abstract class Step
     abstract public function process(Request $request);
 
 	/**
-	 * @return array{string, string}|array{}
+	 * @return array<string, string>|array{}
 	 */
     public function rules(Request $request = null): array
     {
