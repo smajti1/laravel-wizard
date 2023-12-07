@@ -31,10 +31,8 @@ class WizardTest extends TestCase
 	/** @var string  */
     protected $wizardThirdStepKey;
 
-    public function __construct()
+    protected function setUp(): void
     {
-        parent::__construct();
-
         $this->wizardFirstStepKey = 'first_step_key';
         $this->wizardThirdStepKey = 'step_key_third';
         $this->steps = [

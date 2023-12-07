@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.2] - 2023-12-07
+### Added
+- support `laravel` version `10` by change composer require for laravel to `>=7.0`
+- update phpunit to `^10`
+
 ## [1.7.1] - 2022-03-03
 ### Fixed
 - wrong return phpdoc in Step.php
@@ -78,3 +83,5 @@ And will be changed to non-static
 [1.5.0]: https://github.com/smajti1/laravel-wizard/compare/v1.4.0...v1.5.0
 [1.6.0]: https://github.com/smajti1/laravel-wizard/compare/v1.5.0...v1.6.0
 [1.7.0]: https://github.com/smajti1/laravel-wizard/compare/v1.6.0...v1.7.0
+[1.7.1]: https://github.com/smajti1/laravel-wizard/compare/v1.7.0...v1.7.1
+[1.7.2]: https://github.com/smajti1/laravel-wizard/compare/v1.7.1...v1.7.2
