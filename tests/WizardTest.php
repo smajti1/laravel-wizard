@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smajti1\LaravelWizard\Test;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -16,6 +17,7 @@ use Smajti1\LaravelWizard\Test\Step\FourthDumpStep;
 use Smajti1\LaravelWizard\Test\Step\SecondDumpStep;
 use Smajti1\LaravelWizard\Test\Step\ThirdDumpStep;
 
+#[AllowMockObjectsWithoutExpectations]
 class WizardTest extends TestCase
 {
 	/** @var string */
@@ -75,14 +77,10 @@ class WizardTest extends TestCase
 
     public function testCreateStepClass(): void
 	{
-        $testStepClassName = 'TestStepClassName';
-        $this->getMockForAbstractClass(Step::class, [], $testStepClassName, false);
-
+        $testStepClassName = FirstDumpStep::class;
         $method = $this->wizard_reflection->getMethod('createStepClass');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->wizard, $testStepClassName, 1, 'test_key', 2);
-		/** @phpstan-ignore-next-line */
         self::assertInstanceOf($testStepClassName, $result);
         self::assertInstanceOf(Step::class, $result);
     }
@@ -108,7 +106,6 @@ class WizardTest extends TestCase
         $this->expectException(StepNotFoundException::class);
 
         $method = $this->wizard_reflection->getMethod('get');
-        $method->setAccessible(true);
 
         $method->invoke($this->wizard, -1);
     }

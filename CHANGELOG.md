@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.3] - 2026-11-07
+### Fixed
+- fix implicitly nullable `Request` parameter declaration in `Step` class (deprecated in PHP 8.4)
+- simplify and update docker image test/scripts
+- update phpunit/phpstan
+
 ## [1.7.2] - 2023-12-07
 ### Added
 - support `laravel` version `10` by change composer require for laravel to `>=7.0`
@@ -85,3 +91,4 @@ And will be changed to non-static
 [1.7.0]: https://github.com/smajti1/laravel-wizard/compare/v1.6.0...v1.7.0
 [1.7.1]: https://github.com/smajti1/laravel-wizard/compare/v1.7.0...v1.7.1
 [1.7.2]: https://github.com/smajti1/laravel-wizard/compare/v1.7.1...v1.7.2
+[1.7.3]: https://github.com/smajti1/laravel-wizard/compare/v1.7.2...v1.7.3

@@ -52,7 +52,7 @@ abstract class Step
 	/**
 	 * @return array<string, string>|array{}
 	 */
-    public function rules(Request $request = null): array
+    public function rules(?Request $request = null): array
     {
         return [];
     }
